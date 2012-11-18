@@ -1,0 +1,14 @@
+{
+	"name": "Move Lines",
+	"version": "1.0.0",
+	"description": "Move one or more lines up and down with ease.",
+	"main": "init.js",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/chromice/move-lines.chocmixin.git"
+	},
+	"keywords": [
+	],
+	"author": "Anton Muraviev <chromice@gmail.com>",
+	"license": "MIT"
+}
