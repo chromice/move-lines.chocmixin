@@ -1,40 +1,39 @@
+Recipe.prototype.swapRangeContent = function (a, b) {
+	var aContent = this.textInRange(a),
+		bContent = this.textInRange(b);
+	this.replaceTextInRange(b, aContent, false);
+	this.replaceTextInRange(a, bContent, false);
+};
+
 Hooks.addMenuItem("Text/Move Up", "ctrl-shift-up", function () {
-	Recipe.run(function(d) {
-		var lines = d.rangeOfLinesInRange(d.selection);
-		var content = d.textInRange(lines);
+	Recipe.run(function(doc) {
+		var selected = doc.contentRangeOfLinesInRange(doc.selection);
 		
-		if (lines.min() < 1) {
+		if (selected.min() === 0) {
 			return;
 		}
 		
-		if (lines.max() == d.length) {
-			// FIXME: Moving last line does not work properly.
-		}
+		var above = doc.contentRangeOfLinesInRange(new Range(selected.min() - 1,0));
 		
-		var above = d.rangeOfLinesInRange(new Range(lines.min() - 1, 0));
+		doc.swapRangeContent(above, selected);
 		
-		d.deleteTextInRange(lines, false);
-		d.insertTextAtLocation(above.min(), content, false);
-		d.selection = new Range(above.min(), content.length);
+		doc.selection = new Range(above.min(), selected.max() - selected.min());
 	});
 });
+
 Hooks.addMenuItem("Text/Move Down", "ctrl-shift-down", function () {
-	Recipe.run(function(d) {
-		var lines = d.rangeOfLinesInRange(d.selection);
-		var content = d.textInRange(lines);
+	Recipe.run(function(doc) {
+		var selected = doc.contentRangeOfLinesInRange(doc.selection),
+			selectedLines = doc.rangeOfLinesInRange(doc.selection);
 		
-		d.deleteTextInRange(lines, false);
-		
-		var offset = 0;
-		var below = d.rangeOfLinesInRange(new Range(lines.min(), 0));
-		
-		if (below.max() == d.length) {
-			offset++;
-			d.insertTextAtLocation(below.max(), "\n", false);
-			content = content.replace(/\r?\n?$/,'');
+		if (selectedLines.max() >= doc.length) {
+			return;
 		}
 		
-		d.insertTextAtLocation(below.max() + offset, content, false);
-		d.selection = new Range(below.max() + offset, content.length);
+		var below = doc.contentRangeOfLinesInRange(new Range(selectedLines.max(), 0));
+		
+		doc.swapRangeContent(selected, below);
+		
+		doc.selection = new Range(selected.min() + below.max() - below.min() + 1, selected.max() - selected.min());
 	});
 });
